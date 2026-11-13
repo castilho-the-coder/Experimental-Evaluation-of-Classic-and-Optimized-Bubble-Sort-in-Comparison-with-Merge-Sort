@@ -23,5 +23,3 @@ The build uses `gcc -x c -O2`. Timing uses `QueryPerformanceCounter`. Each scena
 - `main.c`: C implementation and benchmark.
 - `run_benchmark.ps1`: compiles and runs the benchmark.
 - `results.csv`: latest execution results, using `;` as separator.
-- `execution_output.txt`: standard output from the latest execution.
-- `high_resolution_output.txt`: raw output from the latest execution.
