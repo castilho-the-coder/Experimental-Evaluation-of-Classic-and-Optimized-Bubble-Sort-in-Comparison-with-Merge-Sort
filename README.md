@@ -25,6 +25,3 @@ The build uses `gcc -x c -O2`. Timing uses `QueryPerformanceCounter`. Each scena
 - `results.csv`: latest execution results, using `;` as separator.
 - `execution_output.txt`: standard output from the latest execution.
 - `high_resolution_output.txt`: raw output from the latest execution.
-- `artigo.pdf`: article with methodology, results, and discussion.
-
-The PDF must be placed in the project root as `artigo.pdf` before publication.
