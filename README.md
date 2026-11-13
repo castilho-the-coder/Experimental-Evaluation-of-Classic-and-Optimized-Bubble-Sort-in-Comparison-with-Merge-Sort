@@ -1,29 +1,30 @@
-# Avaliacao experimental de algoritmos de ordenacao
+# Experimental evaluation of sorting algorithms
 
-Experimento em C que compara Bubble Sort classico, Bubble Sort otimizado por parada antecipada e Merge Sort em vetores aleatorios, crescentes e decrescentes.
+C experiment comparing classic Bubble Sort, optimized Bubble Sort with early exit, and Merge Sort on random, ascending, and descending vectors.
 
-## Requisitos
+## Requirements
 
 - Windows
-- LLVM-MinGW UCRT com GCC
+- LLVM-MinGW UCRT with GCC
 - PowerShell
 
-## Compilar e executar
+## Build and run
 
-O arquivo-fonte se chama `c` e nao possui extensao. Execute:
+The source file is named `main.c`. Run:
 
 ```powershell
 .\run_benchmark.ps1
 ```
 
-A compilacao usa `gcc -x c -O2`. A medicao usa `QueryPerformanceCounter`. Cada combinacao e executada 10 vezes e os resultados sao medias em milissegundos.
+The build uses `gcc -x c -O2`. Timing uses `QueryPerformanceCounter`. Each scenario is executed 10 times and the results are averaged in milliseconds.
 
-## Arquivos
+## Files
 
-- `c`: implementacoes e benchmark em C.
-- `run_benchmark.ps1`: compila e executa o benchmark.
-- `resultados.csv`: resultados da execucao mais recente, com separador `;`.
-- `resultado_alta_resolucao.txt`: saida bruta da execucao mais recente.
-- `artigo.pdf`: artigo com metodologia, resultados e discussao.
+- `main.c`: C implementation and benchmark.
+- `run_benchmark.ps1`: compiles and runs the benchmark.
+- `results.csv`: latest execution results, using `;` as separator.
+- `execution_output.txt`: standard output from the latest execution.
+- `high_resolution_output.txt`: raw output from the latest execution.
+- `artigo.pdf`: article with methodology, results, and discussion.
 
-O PDF deve ser colocado na raiz com o nome `artigo.pdf` antes da publicacao.
+The PDF must be placed in the project root as `artigo.pdf` before publication.
