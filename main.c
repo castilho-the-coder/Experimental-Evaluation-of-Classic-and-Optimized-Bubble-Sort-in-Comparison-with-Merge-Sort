@@ -2,11 +2,31 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <math.h>
 #include <windows.h>
 
-#define REPETITIONS 10
+#define REPETITIONS 30
 
-// 1. Classic Bubble Sort
+typedef struct {
+    int count;
+    double mean;
+    double sum_squared_differences;
+} Statistics;
+
+void add_measurement(Statistics *statistics, double value) {
+    statistics->count++;
+    double difference = value - statistics->mean;
+    statistics->mean += difference / statistics->count;
+    double updated_difference = value - statistics->mean;
+    statistics->sum_squared_differences += difference * updated_difference;
+}
+
+double standard_deviation(const Statistics *statistics) {
+    if (statistics->count < 2) return 0.0;
+    return sqrt(statistics->sum_squared_differences / (statistics->count - 1));
+}
+
+// 1. Bubble Sort clássico
 void bubble_sort_classic(int *v, int n) {
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
@@ -19,7 +39,7 @@ void bubble_sort_classic(int *v, int n) {
     }
 }
 
-// 2. Optimized Bubble Sort (early exit with flag)
+// 2. Bubble Sort otimizado (saída antecipada com sinalizador)
 void bubble_sort_optimized(int *v, int n) {
     for (int i = 0; i < n - 1; i++) {
         int swapped = 0;
@@ -31,7 +51,7 @@ void bubble_sort_optimized(int *v, int n) {
                 swapped = 1;
             }
         }
-        if (!swapped) break; // Stops if the vector is already sorted
+        if (!swapped) break; // Para se o vetor já estiver ordenado
     }
 }
 
@@ -69,7 +89,7 @@ void merge_sort_wrapper(int *v, int n) {
     }
 }
 
-// Data generation (0: Random, 1: Ascending, 2: Descending)
+// Geração de dados (0: Aleatório, 1: Crescente, 2: Decrescente)
 void generate_data(int *v, int n, int type) {
     if (type == 0) {
         for (int i = 0; i < n; i++) v[i] = rand() % (n * 10);
@@ -96,28 +116,35 @@ double measure_time_ms(void (*algorithm)(int *, int), int *vector, int n) {
     return ((double)(end.QuadPart - start.QuadPart) * 1000.0) / frequency.QuadPart;
 }
 
-int main() {
+int main(void) {
     srand(42);
 
-    int sizes[] = {1000, 5000, 10000, 50000};
+    int sizes[] = {1000, 5000, 10000, 50000, 100000};
     int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-    const char *scenario_names[] = {"Random", "Ascending", "Descending"};
+    const char *scenario_names[] = {"Aleatório", "Crescente", "Decrescente"};
+    FILE *results_file = fopen("results.csv", "w");
+    if (results_file == NULL) {
+        fprintf(stderr, "Não foi possível criar o arquivo results.csv.\n");
+        return 1;
+    }
+
+    fprintf(results_file, "cenário;elementos;bubble_clássico_média_ms;bubble_clássico_desvio_padrão_ms;bubble_otimizado_média_ms;bubble_otimizado_desvio_padrão_ms;merge_sort_média_ms;merge_sort_desvio_padrão_ms\n");
 
     printf("=========================================================================\n");
-    printf("   EXPERIMENTAL EVALUATION: BUBBLE SORT vs OPTIMIZED BUBBLE SORT vs MERGE SORT\n");
+    printf("   AVALIAÇÃO EXPERIMENTAL: BUBBLE SORT vs BUBBLE SORT OTIMIZADO vs MERGE SORT\n");
     printf("=========================================================================\n\n");
 
     for (int t = 0; t < 3; t++) {
-        printf(">>> INPUT SCENARIO: %s <<<\n", scenario_names[t]);
-        printf("%-10s | %-22s | %-24s | %-20s\n", "Elements", "Classic Bubble (ms)", "Optimized Bubble (ms)", "Merge Sort (ms)");
-        printf("--------------------------------------------------------------------------\n");
+        printf(">>> CENÁRIO DE ENTRADA: %s <<<\n", scenario_names[t]);
+        printf("%-10s | %-29s | %-31s | %-27s\n", "Elementos", "Bubble clássico (média ± desvio)", "Bubble otimizado (média ± desvio)", "Merge Sort (média ± desvio)");
+        printf("----------------------------------------------------------------------------------------------------\n");
 
         for (int s = 0; s < num_sizes; s++) {
             int n = sizes[s];
 
-            double total_classic = 0.0;
-            double total_optimized = 0.0;
-            double total_merge = 0.0;
+            Statistics classic = {0, 0.0, 0.0};
+            Statistics optimized = {0, 0.0, 0.0};
+            Statistics merge_statistics = {0, 0.0, 0.0};
 
             int *original = (int *)malloc(n * sizeof(int));
             int *work = (int *)malloc(n * sizeof(int));
@@ -126,26 +153,43 @@ int main() {
                 generate_data(original, n, t);
 
                 copy_vector(original, work, n);
-                total_classic += measure_time_ms(bubble_sort_classic, work, n);
+                add_measurement(&classic, measure_time_ms(bubble_sort_classic, work, n));
 
                 copy_vector(original, work, n);
-                total_optimized += measure_time_ms(bubble_sort_optimized, work, n);
+                add_measurement(&optimized, measure_time_ms(bubble_sort_optimized, work, n));
 
                 copy_vector(original, work, n);
-                total_merge += measure_time_ms(merge_sort_wrapper, work, n);
+                add_measurement(&merge_statistics, measure_time_ms(merge_sort_wrapper, work, n));
             }
 
             free(original);
             free(work);
 
-            printf("%-10d | %-22.6f | %-24.6f | %-20.6f\n",
+            double classic_standard_deviation = standard_deviation(&classic);
+            double optimized_standard_deviation = standard_deviation(&optimized);
+            double merge_standard_deviation = standard_deviation(&merge_statistics);
+
+            printf("%-10d | %12.6f ± %-12.6f | %12.6f ± %-12.6f | %12.6f ± %-12.6f\n",
                    n,
-                   total_classic / REPETITIONS,
-                   total_optimized / REPETITIONS,
-                   total_merge / REPETITIONS);
+                   classic.mean,
+                   classic_standard_deviation,
+                   optimized.mean,
+                   optimized_standard_deviation,
+                   merge_statistics.mean,
+                   merge_standard_deviation);
+            fprintf(results_file, "%s;%d;%.6f;%.6f;%.6f;%.6f;%.6f;%.6f\n",
+                    scenario_names[t],
+                    n,
+                    classic.mean,
+                    classic_standard_deviation,
+                    optimized.mean,
+                    optimized_standard_deviation,
+                    merge_statistics.mean,
+                    merge_standard_deviation);
         }
-        printf("--------------------------------------------------------------------------\n\n");
+        printf("----------------------------------------------------------------------------------------------------\n\n");
     }
 
+    fclose(results_file);
     return 0;
 }

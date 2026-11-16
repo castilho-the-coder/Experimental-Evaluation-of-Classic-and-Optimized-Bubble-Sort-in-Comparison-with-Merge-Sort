@@ -1,25 +1,25 @@
-# Experimental evaluation of sorting algorithms
+# Avaliação experimental de algoritmos de ordenação
 
-C experiment comparing classic Bubble Sort, optimized Bubble Sort with early exit, and Merge Sort on random, ascending, and descending vectors.
+Experimento em C que compara o Bubble Sort clássico, o Bubble Sort otimizado com saída antecipada e o Merge Sort em vetores aleatórios, crescentes e decrescentes.
 
-## Requirements
+## Requisitos
 
 - Windows
-- LLVM-MinGW UCRT with GCC
+- LLVM-MinGW UCRT com GCC
 - PowerShell
 
-## Build and run
+## Compilação e execução
 
-The source file is named `main.c`. Run:
+O arquivo-fonte chama-se `main.c`. Execute:
 
 ```powershell
 .\run_benchmark.ps1
 ```
 
-The build uses `gcc -x c -O2`. Timing uses `QueryPerformanceCounter`. Each scenario is executed 10 times and the results are averaged in milliseconds.
+A compilação usa `gcc -x c -O2`. A medição de tempo usa `QueryPerformanceCounter`. Cada cenário é executado 30 vezes. O programa calcula a média e o desvio padrão amostral dos tempos em milissegundos para cada algoritmo e tamanho de entrada, incluindo até 100.000 elementos.
 
-## Files
+## Arquivos
 
-- `main.c`: C implementation and benchmark.
-- `run_benchmark.ps1`: compiles and runs the benchmark.
-- `results.csv`: latest execution results, using `;` as separator.
+- `main.c`: implementação em C e benchmark.
+- `run_benchmark.ps1`: compila e executa o benchmark.
+- `results.csv`: resultados da execução mais recente, usando `;` como separador.
